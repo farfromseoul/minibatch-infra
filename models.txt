@@ -1,0 +1,4 @@
+# 운영·개발 공통 LM Studio 모델. 한 줄에 하나.
+# 형식: <모델 이름>@<양자화> <mlx|gguf>   (이름·양자화는 `lms ls --llm --json`의 selectedVariant)
+# 시범 운영(개발 기기) 모델, D22. Mac mini로 옮기기 전(작업 순서 28-1)에 14B급 결과로 바꾼다.
+qwen/qwen3.8-27b@4bit mlx
