@@ -1,0 +1,29 @@
+# MiniBatch 인프라 저장소에 올라가면 안 되는 파일.
+# 비밀 값은 저장소 밖 ~/.config/minibatch/secrets/ 에만 둔다. 아래는 실수 방지용이다.
+
+# 호스트마다 다른 값 (경로, 태그). env.example 만 올린다
+.env
+.env.*
+*.local.yaml
+
+# 실수로 복사된 비밀 값
+secrets/
+*.pem
+*.key
+*token*.json
+*client*.json
+*_api_key
+n8n_encryption_key
+job_api_token
+
+# 백업 산출물과 데이터
+backups/
+*.tgz
+*.sqlite
+*.sqlite-*
+*.db
+
+# 편집기와 OS
+.DS_Store
+.idea/
+.vscode/
