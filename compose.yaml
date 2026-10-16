@@ -43,14 +43,18 @@ services:
       MINIBATCH_RENDER_WORKER_URL: http://render-worker:8091
       MINIBATCH_N8N_WEBHOOK_BASE_URL: http://n8n:5678/webhook
       MINIBATCH_DAILY_JOB_LIMIT: "${MINIBATCH_DAILY_JOB_LIMIT:-3}"
-      MINIBATCH_REVIEW_BACKLOG_LIMIT: "6"
+      MINIBATCH_REVIEW_BACKLOG_LIMIT: "${MINIBATCH_REVIEW_BACKLOG_LIMIT:-6}"
       MINIBATCH_DISK_FREE_WARN_GB: "50"
       MINIBATCH_JOB_API_TOKEN_FILE: /run/secrets/job_api_token
       MINIBATCH_YOUTUBE_CLIENT_FILE: /run/secrets/youtube_client
       MINIBATCH_YOUTUBE_TOKEN_FILE: /run/minibatch/youtube-token/youtube_token.json
+      # 텔레그램 승인 (D28): job-api 가 버튼 메시지를 보내고 버튼 응답을 가져온다(나가는 연결만). chat id 는 비밀 값이 아니다
+      MINIBATCH_TELEGRAM_TOKEN_FILE: /run/secrets/telegram_bot_token
+      MINIBATCH_TELEGRAM_CHAT_ID: "${MINIBATCH_TELEGRAM_CHAT_ID:-}"
     secrets:
       - job_api_token
       - youtube_client
+      - telegram_bot_token
     volumes:
       - ${MINIBATCH_DATA_DIR:?MINIBATCH_DATA_DIR 를 .env 에 지정하세요}:/data
       # 갱신 토큰은 job-api 가 다시 쓸 수 있어 secret(읽기 전용)이 아니라 폴더째 붙인다.
@@ -123,3 +127,5 @@ secrets:
     file: ${MINIBATCH_SECRETS_DIR:?MINIBATCH_SECRETS_DIR 를 .env 에 지정하세요}/job_api_token
   youtube_client:
     file: ${MINIBATCH_SECRETS_DIR:?MINIBATCH_SECRETS_DIR 를 .env 에 지정하세요}/youtube_client.json
+  telegram_bot_token:
+    file: ${MINIBATCH_SECRETS_DIR:?MINIBATCH_SECRETS_DIR 를 .env 에 지정하세요}/telegram_bot_token
