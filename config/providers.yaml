@@ -1,0 +1,69 @@
+# MiniBatch 제공자 설정. 어떤 LLM·TTS·영상 생성기를 쓸지 여기서만 정한다 (아키텍처 D19).
+# 비밀 값은 넣지 않는다. 키는 /run/minibatch/providers/ 아래 파일 경로로만 가리킨다.
+# 바꾼 뒤: docker compose --profile app restart job-api
+
+llm:
+  steps:                      # 단계별로 쓸 제공자 이름
+    script: local
+    review: local
+    scenes: local
+  providers:
+    local:                    # LM Studio. Ollama로 바꿀 때는 아래 주석의 값으로
+      kind: openai-compatible
+      base_url: http://host.docker.internal:1234/v1      # Ollama: http://host.docker.internal:11434/v1
+      model: "qwen/qwen3.8-27b"                         # 시범 운영(개발 기기, D22). Mac mini 이전 전 재시험(작업 순서 28-1)
+      structured_output: json_schema                     # Ollama: json_object (스키마 강제 지원 미확인)
+      extra_body:
+        ttl: 120                                         # LM Studio: 2분 쓰지 않으면 내림. Ollama: 비운다
+      timeout_sec: 300
+    # claude:                 # 나중에 Claude API 로 바꿀 때 주석을 풀고 llm.steps 에서 고른다
+    #   kind: claude-api
+    #   model: "<모델 ID>"
+    #   api_key_file: /run/minibatch/providers/claude_api_key
+    #   timeout_sec: 300
+
+tts:
+  provider: main
+  providers:
+    main:
+      kind: http-worker
+      url: http://tts-worker:8090
+      engine: supertonic                                  # 0주 차 결정(D6). 예비는 melotts
+      voice: M1                                           # 카테고리 파일의 voices 가 우선 (ai-it: M1). 20-d2 실제 영상에 쓴 목소리
+      sample_rate: 44100                                  # 두 엔진 모두 44.1kHz 모노 (0주 차 실측)
+      chars_per_sec: 5.0                                  # 초당 글자 수(공백 제외). 대본 목표 글자 수 계산. 첫 전체 영상 실측 5.0 (0주 차 짧은 문장은 5.62)
+      timeout_sec: 900                                    # 60초 분량 합성 약 30초
+
+video:
+  clip_engine: none           # none | runway | higgsfield | seedance  (none 이면 템플릿만, 3안)
+  clip_policy:
+    roles: [hook]             # 생성 클립을 허용할 장면 역할
+    max_clips_per_job: 1
+    max_cost_usd_per_job: 1.0
+  engines:
+    runway:
+      kind: runway
+      model: gen4_turbo
+      ratio: "720:1280"       # 세로 비율 지원 미확인 (기술 조사 R4)
+      clip_seconds: 5
+      usd_per_second: 0.05    # 2026-10-15 조회 단가 (기술 조사 R1)
+      api_key_file: /run/minibatch/providers/runway_api_key
+      poll_interval_sec: 10
+      timeout_sec: 900
+    higgsfield:
+      kind: higgsfield
+      model: "<모델 이름>"     # 예: Kling 2.5 (이름 표기 미확인)
+      clip_seconds: 5
+      usd_per_second: 0.042   # 2026-10-15 조회 시작가 (기술 조사 R2)
+      api_key_file: /run/minibatch/providers/higgsfield_api_key
+      poll_interval_sec: 10
+      timeout_sec: 900
+    seedance:                 # ByteDance 직접 (BytePlus ModelArk). 2026-10-16 후보 추가, 한국 제공 여부 미확인
+      kind: seedance
+      model: "<모델 이름>"     # 예: Seedance 2.5 (이름 표기 미확인)
+      resolution: 720p
+      clip_seconds: 5
+      usd_per_second: 0.23    # 2.5 720p 환산 (토큰 과금, 기술 조사 R27)
+      api_key_file: /run/minibatch/providers/seedance_api_key
+      poll_interval_sec: 10
+      timeout_sec: 900
