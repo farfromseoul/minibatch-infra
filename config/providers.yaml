@@ -36,6 +36,10 @@ tts:
 
 video:
   clip_engine: none           # none | runway | higgsfield | seedance  (none 이면 템플릿만, 3안)
+  stock:                    # 스톡 영상 (레터박스 화면 가운데 판, 2026-10-17). none 이면 도식만
+    engine: pixabay
+    api_key_file: /run/minibatch/providers/pixabay_api_key
+    max_per_video: 6        # 영상 하나에 스톡 장면 최대 수
   clip_policy:
     roles: [hook]             # 생성 클립을 허용할 장면 역할
     max_clips_per_job: 1
