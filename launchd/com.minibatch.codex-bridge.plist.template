@@ -29,8 +29,8 @@
   <key>KeepAlive</key>
   <true/>
   <key>StandardOutPath</key>
-  <string>__HOME__/minibatch-data/logs/codex-bridge.log</string>
+  <string>__HOME__/Library/Logs/minibatch/codex-bridge.log</string>
   <key>StandardErrorPath</key>
-  <string>__HOME__/minibatch-data/logs/codex-bridge.log</string>
+  <string>__HOME__/Library/Logs/minibatch/codex-bridge.log</string>
 </dict>
 </plist>

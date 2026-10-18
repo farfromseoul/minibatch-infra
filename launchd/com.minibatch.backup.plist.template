@@ -11,8 +11,6 @@
   </array>
   <key>EnvironmentVariables</key>
   <dict>
-    <key>MINIBATCH_DATA_DIR</key>
-    <string>__HOME__/minibatch-data</string>
     <key>PATH</key>
     <string>__HOME__/.orbstack/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
   </dict>
@@ -24,8 +22,8 @@
     <integer>30</integer>
   </dict>
   <key>StandardOutPath</key>
-  <string>__HOME__/minibatch-data/logs/backup.log</string>
+  <string>__HOME__/Library/Logs/minibatch/backup.log</string>
   <key>StandardErrorPath</key>
-  <string>__HOME__/minibatch-data/logs/backup.log</string>
+  <string>__HOME__/Library/Logs/minibatch/backup.log</string>
 </dict>
 </plist>

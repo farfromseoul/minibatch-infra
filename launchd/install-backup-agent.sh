@@ -3,7 +3,8 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 DEST="$HOME/Library/LaunchAgents/com.minibatch.backup.plist"
-mkdir -p "$HOME/Library/LaunchAgents"
+# 로그는 내장 디스크에 (TCC: LaunchAgent 는 외장 볼륨에 못 쓴다)
+mkdir -p "$HOME/Library/LaunchAgents" "$HOME/Library/Logs/minibatch"
 sed "s#__HOME__#$HOME#g" com.minibatch.backup.plist.template > "$DEST"
 plutil -lint "$DEST"
 launchctl bootout "gui/$(id -u)" "$DEST" 2>/dev/null || true
