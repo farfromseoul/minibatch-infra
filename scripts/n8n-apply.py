@@ -58,7 +58,8 @@ def clean(out: str) -> list[str]:
 
 def workflows(n8n: N8n) -> dict[str, dict]:
     """이름 → {id, active, nodes}. 같은 이름이 둘이면 멈춘다(어느 쪽을 덮을지 모름)"""
-    n8n.exec("rm -rf /tmp/mb-list && n8n export:workflow --all --separate --output=/tmp/mb-list/ >/dev/null 2>&1")
+    # 워크플로가 하나도 없으면 n8n 이 'No workflows found' 로 실패한다(새 n8n, 2026-10-18 맥미니). 빈 목록으로 본다
+    n8n.exec("rm -rf /tmp/mb-list && mkdir -p /tmp/mb-list && (n8n export:workflow --all --separate --output=/tmp/mb-list/ >/dev/null 2>&1 || true)")
     data = n8n.node_json("const fs=require('fs');const d='/tmp/mb-list/';console.log(JSON.stringify("
                          "fs.readdirSync(d).map(f=>JSON.parse(fs.readFileSync(d+f))).map(w=>({id:w.id,name:w.name,"
                          "active:!!(w.active||w.activeVersionId),archived:!!w.isArchived,nodes:(w.nodes||[]).length}))))")
