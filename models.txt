@@ -1,4 +1,5 @@
 # 운영·개발 공통 LM Studio 모델. 한 줄에 하나.
 # 형식: <모델 이름>@<양자화> <mlx|gguf>   (이름·양자화는 `lms ls --llm --json`의 selectedVariant)
 # 운영 로컬 LLM (D35, 2026-10-18): Mac mini 24GB 에 맞춰 Gemma 4 12B MLX. 검토·장면, Codex 실패 때 대본. 이전: qwen/qwen3.8-27b@4bit (D22)
-google/gemma-4-12b@4bit mlx
+# 맥미니 LM Studio 에서 lmstudio-community/gemma-4-12B-it-MLX-4bit 를 화면에서 받아 이 이름으로 등록됨. pull-models.sh 로 받을 수 있는지는 미확인
+gemma-4-12b-it-mlx mlx
