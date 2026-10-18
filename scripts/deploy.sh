@@ -52,6 +52,7 @@ if [ -n "$BRIDGE" ]; then
   echo "== 중계기 다시 시작"; remote 'launchctl kickstart -k "gui/$(id -u)/com.minibatch.codex-bridge"'
 fi
 
+if ! remote "command -v docker >/dev/null"; then echo "== 맥미니에 docker 가 아직 없어 확인을 건너뜀 (파일 맞추기는 끝남)"; exit 0; fi
 echo "== 확인"
 for i in $(seq 1 12); do
   if remote "curl -sf http://127.0.0.1:8080/healthz >/dev/null"; then break; fi; sleep 5
