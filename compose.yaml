@@ -30,7 +30,7 @@ services:
 
   job-api:
     profiles: ["app"]
-    image: minibatch-job-api:${MINIBATCH_APP_IMAGE_TAG:-dev}
+    image: ${MINIBATCH_IMAGE_PREFIX:-}minibatch-job-api:${MINIBATCH_APP_IMAGE_TAG:-dev}
     restart: unless-stopped
     ports:
       - "127.0.0.1:8080:8080"
@@ -87,7 +87,7 @@ services:
 
   tts-worker:
     profiles: ["app"]
-    image: minibatch-tts-worker:${MINIBATCH_APP_IMAGE_TAG:-dev}
+    image: ${MINIBATCH_IMAGE_PREFIX:-}minibatch-tts-worker:${MINIBATCH_APP_IMAGE_TAG:-dev}
     restart: unless-stopped
     environment:
       TZ: Asia/Seoul
@@ -99,7 +99,7 @@ services:
 
   render-worker:
     profiles: ["app"]
-    image: minibatch-render-worker:${MINIBATCH_APP_IMAGE_TAG:-dev}
+    image: ${MINIBATCH_IMAGE_PREFIX:-}minibatch-render-worker:${MINIBATCH_APP_IMAGE_TAG:-dev}
     restart: unless-stopped
     environment:
       TZ: Asia/Seoul
