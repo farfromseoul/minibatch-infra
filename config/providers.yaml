@@ -4,7 +4,7 @@
 
 llm:
   steps:                      # 단계별로 쓸 제공자 이름
-    script: local
+    script: codex             # 대본은 Codex 중계기 (D32). 되돌리기: local
     review: local
     scenes: local
   providers:
@@ -16,6 +16,12 @@ llm:
       extra_body:
         ttl: 120                                         # LM Studio: 2분 쓰지 않으면 내림. Ollama: 비운다
       timeout_sec: 300
+    codex:                    # 맥 위 Codex 중계기 (minibatch-app/llm-bridge, ChatGPT 로그인). 실패하면 중계기가 LM Studio 로 넘긴다
+      kind: openai-compatible
+      base_url: http://host.docker.internal:1235/v1
+      model: "codex"
+      structured_output: json_schema
+      timeout_sec: 900
     # claude:                 # 나중에 Claude API 로 바꿀 때 주석을 풀고 llm.steps 에서 고른다
     #   kind: claude-api
     #   model: "<모델 ID>"
@@ -31,7 +37,7 @@ tts:
       engine: supertonic                                  # 0주 차 결정(D6). 예비는 melotts
       voice: M1                                           # 카테고리 파일의 voices 가 우선 (ai-it: M1). 20-d2 실제 영상에 쓴 목소리
       sample_rate: 44100                                  # 두 엔진 모두 44.1kHz 모노 (0주 차 실측)
-      chars_per_sec: 5.0                                  # 초당 글자 수(공백 제외). 대본 목표 글자 수 계산. 첫 전체 영상 실측 5.0 (0주 차 짧은 문장은 5.62)
+      chars_per_sec: 5.3                                  # 초당 글자 수(공백 제외). 대본 목표 글자 수 계산. 5.0(qwen 대본 실측) → 5.3(D32, Codex 대본은 5.35~5.49로 빨리 읽힘)
       timeout_sec: 900                                    # 60초 분량 합성 약 30초
 
 video:

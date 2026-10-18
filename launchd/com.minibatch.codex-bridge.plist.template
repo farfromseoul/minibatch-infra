@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.minibatch.codex-bridge</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>__HOME__/personal-projects/minibatch-app/llm-bridge/codex_bridge.py</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>CODEX_BIN</key>
+    <string>/opt/homebrew/bin/codex</string>
+    <key>BRIDGE_HOST</key>
+    <string>127.0.0.1</string>
+    <key>BRIDGE_PORT</key>
+    <string>1235</string>
+    <key>FALLBACK_URL</key>
+    <string>http://127.0.0.1:1234/v1</string>
+    <key>FALLBACK_MODEL</key>
+    <string>__FALLBACK_MODEL__</string>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+  </dict>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>__HOME__/minibatch-data/logs/codex-bridge.log</string>
+  <key>StandardErrorPath</key>
+  <string>__HOME__/minibatch-data/logs/codex-bridge.log</string>
+</dict>
+</plist>
