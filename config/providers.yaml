@@ -11,7 +11,7 @@ llm:
     local:                    # LM Studio. Ollama로 바꿀 때는 아래 주석의 값으로
       kind: openai-compatible
       base_url: http://host.docker.internal:1234/v1      # Ollama: http://host.docker.internal:11434/v1
-      model: "qwen/qwen3.8-27b"                         # 시범 운영(개발 기기, D22). Mac mini 이전 전 재시험(작업 순서 28-1)
+      model: "google/gemma-4-12b"                       # 운영 로컬 LLM (D35, 2026-10-18). 이전: qwen/qwen3.8-27b (D22)
       structured_output: json_schema                     # Ollama: json_object (스키마 강제 지원 미확인)
       extra_body:
         ttl: 120                                         # LM Studio: 2분 쓰지 않으면 내림. Ollama: 비운다
