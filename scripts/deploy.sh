@@ -5,7 +5,8 @@
 #   ./scripts/deploy.sh --rollback  바로 전에 배포한 태그로 되돌린다
 # 하는 일: ① 인프라 저장소(.git·.env 제외)와 앱의 llm-bridge/ 를 맥미니 같은 경로로 복사
 #          ② (태그가 있으면) .env 태그 변경 → compose pull → up -d → /healthz 확인
-#          ③ 바뀐 것만 다시 시작: config/ → job-api, llm-bridge/ → Codex 중계기
+#          ③ 바뀐 것만 다시 시작: config/ → job-api, llm-bridge/ → Codex 중계기,
+#             launchd/ 템플릿 → 그 LaunchAgent 를 다시 설치 (2026-10-19: 템플릿 환경 변수를 바꾸고 맥미니에서 따로 설치해야 했다)
 # 비밀 값(.env, ~/.config/minibatch/secrets)은 맥미니에만 있고 보내지 않는다.
 set -euo pipefail
 INFRA="$(cd "$(dirname "$0")/.." && pwd)"
@@ -33,10 +34,14 @@ esac
 
 echo "== 파일 맞추기 → $TARGET"
 ssh "$TARGET" "mkdir -p ~/personal-projects/minibatch-infra ~/personal-projects/minibatch-app/llm-bridge"
-CFG=$(rsync -a --delete --itemize-changes --exclude .git --exclude .env --exclude .deploy-history \
-        "$INFRA/" "$TARGET:personal-projects/minibatch-infra/" | grep -E ' config/' || true)
+# rsync 가 실패하면 여기서 멈춘다 (예전에는 grep 뒤의 || true 가 실패를 가렸다)
+SYNC=$(rsync -a --delete --itemize-changes --exclude .git --exclude .env --exclude .deploy-history \
+        "$INFRA/" "$TARGET:personal-projects/minibatch-infra/")
 BRIDGE=$(rsync -a --delete --itemize-changes --exclude __pycache__ \
-        "$APP/llm-bridge/" "$TARGET:personal-projects/minibatch-app/llm-bridge/" || true)
+        "$APP/llm-bridge/" "$TARGET:personal-projects/minibatch-app/llm-bridge/")
+CFG=$(printf '%s\n' "$SYNC" | grep -E ' config/' || true)
+AGENT_BRIDGE=$(printf '%s\n' "$SYNC" | grep -E ' launchd/(com\.minibatch\.codex-bridge|install-codex-bridge)' || true)
+AGENT_BACKUP=$(printf '%s\n' "$SYNC" | grep -E ' launchd/(com\.minibatch\.backup|install-backup-agent)' || true)
 
 if [ -n "$TAG" ]; then
   echo "== 이미지 $TAG"
@@ -48,8 +53,19 @@ fi
 if [ -n "$CFG" ]; then
   echo "== 설정(config/)이 바뀌어 job-api 다시 시작"; remote "docker compose --profile app restart job-api"
 fi
-if [ -n "$BRIDGE" ]; then
+if [ -n "$AGENT_BRIDGE" ]; then
+  # 템플릿이 바뀌면 plist 를 다시 만들어 올린다(중계기도 새로 뜬다). 대체 모델은 models.txt 첫 줄
+  echo "== 중계기 LaunchAgent 다시 설치"; remote "./launchd/install-codex-bridge.sh"
+elif [ -n "$BRIDGE" ]; then
   echo "== 중계기 다시 시작"; remote 'launchctl kickstart -k "gui/$(id -u)/com.minibatch.codex-bridge"'
+fi
+if [ -n "$AGENT_BACKUP" ]; then
+  # 백업 LaunchAgent 는 08 E2 에서 처음 설치한다. 이미 설치된 경우에만 다시 설치
+  if remote 'launchctl print "gui/$(id -u)/com.minibatch.backup" >/dev/null 2>&1'; then
+    echo "== 백업 LaunchAgent 다시 설치"; remote "./launchd/install-backup-agent.sh"
+  else
+    echo "== 백업 LaunchAgent 는 아직 설치 전(08 E2): 건너뜀"
+  fi
 fi
 
 if ! remote "command -v docker >/dev/null"; then echo "== 맥미니에 docker 가 아직 없어 확인을 건너뜀 (파일 맞추기는 끝남)"; exit 0; fi
