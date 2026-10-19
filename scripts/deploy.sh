@@ -46,7 +46,7 @@ AGENT_BACKUP=$(printf '%s\n' "$SYNC" | grep -E ' launchd/(com\.minibatch\.backup
 if [ -n "$TAG" ]; then
   echo "== 이미지 $TAG"
   remote "grep -q '^MINIBATCH_APP_IMAGE_TAG=' .env"   # .env 는 맥미니에서 처음 한 번 만든다 (08 C2)
-  remote "docker compose --profile app config --images | grep minibatch- | sed 's/:.*//' | sort -u | while read -r i; do docker pull -q \"\$i:$TAG\" >/dev/null; done"
+  remote "docker compose --profile app config --images | grep minibatch- | sed 's/:.*//' | sort -u | while read -r i; do docker pull -q \"\${i}:$TAG\" >/dev/null; done"
   remote "sed -i '' 's/^MINIBATCH_APP_IMAGE_TAG=.*/MINIBATCH_APP_IMAGE_TAG=$TAG/' .env && echo \"\$(date '+%F %T') $TAG\" >> .deploy-history"
   remote "docker compose up -d && docker compose --profile app up -d"
 fi
