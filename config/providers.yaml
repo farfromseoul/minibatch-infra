@@ -6,7 +6,7 @@ llm:
   steps:                      # 단계별로 쓸 제공자 이름
     script: codex             # 대본은 Codex 중계기 (D32). 되돌리기: local
     review: local
-    scenes: local
+    scenes: codex             # 장면 구성도 Codex (2026-10-19: Gemma 12B 가 '같은 템플릿 3연속 금지' 규칙을 반복해 어김). 되돌리기: local
   providers:
     local:                    # LM Studio. Ollama로 바꿀 때는 아래 주석의 값으로
       kind: openai-compatible
@@ -42,10 +42,10 @@ tts:
 
 video:
   clip_engine: none           # none | runway | higgsfield | seedance  (none 이면 템플릿만, 3안)
-  stock:                    # 스톡 영상 (레터박스 화면 가운데 판, 2026-10-17). none 이면 도식만
+  stock:                    # 스톡 영상·사진 (레터박스 화면 가운데 판, 2026-10-17 영상, 2026-10-19 사진). none 이면 도식만
     engine: pixabay
     api_key_file: /run/minibatch/providers/pixabay_api_key
-    max_per_video: 6        # 영상 하나에 스톡 장면 최대 수
+    max_per_video: 8        # 영상 하나에 스톡 장면 최대 수 (2026-10-19: 6 → 8, 소재를 더 풍부하게. 영상·사진 합쳐서)
   clip_policy:
     roles: [hook]             # 생성 클립을 허용할 장면 역할
     max_clips_per_job: 1

@@ -21,6 +21,8 @@
     <string>http://127.0.0.1:1234/v1</string>
     <key>FALLBACK_MODEL</key>
     <string>__FALLBACK_MODEL__</string>
+    <key>CODEX_EFFORT</key>
+    <string>scenes=low,visual_queries=low</string>
     <key>PATH</key>
     <string>/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
   </dict>
