@@ -51,6 +51,9 @@ services:
       # 텔레그램 승인 (D28): job-api 가 버튼 메시지를 보내고 버튼 응답을 가져온다(나가는 연결만). chat id 는 비밀 값이 아니다
       MINIBATCH_TELEGRAM_TOKEN_FILE: /run/secrets/telegram_bot_token
       MINIBATCH_TELEGRAM_CHAT_ID: "${MINIBATCH_TELEGRAM_CHAT_ID:-}"
+      # ASMR 채널 (D38). 채널 ID 는 비밀 값이 아니다. 비어 있으면 올리지 않는다
+      MINIBATCH_ASMR_CHANNEL_ID: "${MINIBATCH_ASMR_CHANNEL_ID:-}"
+      MINIBATCH_ASMR_DAILY_UPLOAD_LIMIT: "${MINIBATCH_ASMR_DAILY_UPLOAD_LIMIT:-3}"
     secrets:
       - job_api_token
       - youtube_client
@@ -75,6 +78,13 @@ services:
       - type: bind
         source: ${MINIBATCH_SECRETS_DIR:?MINIBATCH_SECRETS_DIR 를 .env 에 지정하세요}/providers
         target: /run/minibatch/providers
+        read_only: true
+        bind:
+          create_host_path: false
+      # ASMR 채널 인증 (클라이언트 + 갱신 토큰, MiniBatch 와 다른 Google Cloud 프로젝트)
+      - type: bind
+        source: ${MINIBATCH_SECRETS_DIR:?MINIBATCH_SECRETS_DIR 를 .env 에 지정하세요}/asmr-youtube
+        target: /run/minibatch/asmr-youtube
         read_only: true
         bind:
           create_host_path: false
