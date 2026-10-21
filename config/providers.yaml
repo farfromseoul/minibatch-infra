@@ -5,7 +5,7 @@
 llm:
   steps:                      # 단계별로 쓸 제공자 이름
     script: codex             # 대본은 Codex 중계기 (D32). 되돌리기: local
-    review: local
+    review: codex             # 검토도 Codex (2026-10-21: Gemma 12B 가 표현 차이를 치명 오류로 판단해 6화가 세 번 떨어짐). 되돌리기: local
     scenes: codex             # 장면 구성도 Codex (2026-10-19: Gemma 12B 가 '같은 템플릿 3연속 금지' 규칙을 반복해 어김). 되돌리기: local
   providers:
     local:                    # LM Studio. Ollama로 바꿀 때는 아래 주석의 값으로
