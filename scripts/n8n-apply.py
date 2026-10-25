@@ -24,7 +24,7 @@ from datetime import datetime
 from pathlib import Path
 
 PLACEHOLDER = "CHAT_ID_를_여기에"
-NEW_PUBLISH = {"MiniBatch 1", "MiniBatch 3", "MiniBatch 4", "MiniBatch 5", "MiniBatch 6"}  # 새로 만들 때 게시할 것 (2 검토 폼은 예비)
+NEW_PUBLISH = {"MiniBatch 0", "MiniBatch 1", "MiniBatch 3", "MiniBatch 4", "MiniBatch 5", "MiniBatch 6", "MiniBatch 7"}  # 새로 만들 때 게시할 것 (2 검토 폼은 예비)
 HOME = Path.home()
 
 
