@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.minibatch.lab-runner</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>__HOME__/personal-projects/minibatch-app/lab-runner/lab_runner.py</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>LAB_HOST</key><string>127.0.0.1</string>
+    <key>LAB_PORT</key><string>1236</string>
+    <key>LAB_DATA_DIR</key><string>__DATA_DIR__</string>
+    <key>LAB_ENV_FILE</key><string>__HOME__/.config/minibatch-lab/env</string>
+    <key>LAB_TOKEN_FILE</key><string>__HOME__/.config/minibatch-lab/runner_token</string>
+    <key>LAB_NETWORK</key><string>minibatch-lab</string>
+    <key>LAB_PROXY</key><string>http://172.31.250.2:3128</string>
+    <key>LAB_TASK_TIMEOUT_SEC</key><string>600</string>
+    <key>LAB_JOB_TIMEOUT_SEC</key><string>1800</string>
+    <key>PATH</key><string>__HOME__/.orbstack/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+  </dict>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>StandardOutPath</key><string>__HOME__/Library/Logs/minibatch/lab-runner.log</string>
+  <key>StandardErrorPath</key><string>__HOME__/Library/Logs/minibatch/lab-runner.log</string>
+</dict>
+</plist>

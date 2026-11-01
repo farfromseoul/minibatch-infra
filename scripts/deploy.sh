@@ -33,13 +33,17 @@ case "$ARG" in
 esac
 
 echo "== 파일 맞추기 → $TARGET"
-ssh "$TARGET" "mkdir -p ~/personal-projects/minibatch-infra ~/personal-projects/minibatch-app/llm-bridge"
+ssh "$TARGET" "mkdir -p ~/personal-projects/minibatch-infra ~/personal-projects/minibatch-app/llm-bridge ~/personal-projects/minibatch-app/lab-runner"
 # rsync 가 실패하면 여기서 멈춘다 (예전에는 grep 뒤의 || true 가 실패를 가렸다)
 SYNC=$(rsync -a --delete --itemize-changes --exclude .git --exclude .env --exclude .deploy-history \
         "$INFRA/" "$TARGET:personal-projects/minibatch-infra/")
 BRIDGE=$(rsync -a --delete --itemize-changes --exclude __pycache__ \
         "$APP/llm-bridge/" "$TARGET:personal-projects/minibatch-app/llm-bridge/")
+# 실습 리뷰 실험 실행기 (D46): 코드만 복사(테스트·캐시 제외)
+LABR=$(rsync -a --delete --itemize-changes --exclude __pycache__ --exclude 'test_*' \
+        "$APP/lab-runner/" "$TARGET:personal-projects/minibatch-app/lab-runner/")
 CFG=$(printf '%s\n' "$SYNC" | grep -E ' config/' || true)
+AGENT_LAB=$(printf '%s\n' "$SYNC" | grep -E ' launchd/(com\.minibatch\.lab-runner|install-lab-runner)' || true)
 AGENT_BRIDGE=$(printf '%s\n' "$SYNC" | grep -E ' launchd/(com\.minibatch\.codex-bridge|install-codex-bridge)' || true)
 AGENT_BACKUP=$(printf '%s\n' "$SYNC" | grep -E ' launchd/(com\.minibatch\.backup|install-backup-agent)' || true)
 
@@ -47,6 +51,8 @@ if [ -n "$TAG" ]; then
   echo "== 이미지 $TAG"
   remote "grep -q '^MINIBATCH_APP_IMAGE_TAG=' .env"   # .env 는 맥미니에서 처음 한 번 만든다 (08 C2)
   remote "docker compose --profile app config --images | grep minibatch- | sed 's/:.*//' | sort -u | while read -r i; do docker pull -q \"\${i}:$TAG\" >/dev/null; done"
+  # 실습 리뷰 실험 이미지 (compose 서비스가 아니라 실행기가 docker run 으로 쓴다)
+  remote "P=\$(grep '^MINIBATCH_IMAGE_PREFIX=' .env | cut -d= -f2-); docker pull -q \"\${P}minibatch-lab:$TAG\" >/dev/null"
   remote "sed -i '' 's/^MINIBATCH_APP_IMAGE_TAG=.*/MINIBATCH_APP_IMAGE_TAG=$TAG/' .env && echo \"\$(date '+%F %T') $TAG\" >> .deploy-history"
   remote "docker compose up -d && docker compose --profile app up -d"
 fi
@@ -58,6 +64,12 @@ if [ -n "$AGENT_BRIDGE" ]; then
   echo "== 중계기 LaunchAgent 다시 설치"; remote "./launchd/install-codex-bridge.sh"
 elif [ -n "$BRIDGE" ]; then
   echo "== 중계기 다시 시작"; remote 'launchctl kickstart -k "gui/$(id -u)/com.minibatch.codex-bridge"'
+fi
+if remote 'launchctl print "gui/$(id -u)/com.minibatch.lab-runner" >/dev/null 2>&1'; then
+  if [ -n "$AGENT_LAB" ]; then echo "== 실험 실행기 LaunchAgent 다시 설치"; remote "./launchd/install-lab-runner.sh"
+  elif [ -n "$LABR" ]; then echo "== 실험 실행기 다시 시작"; remote 'launchctl kickstart -k "gui/$(id -u)/com.minibatch.lab-runner"'; fi
+else
+  echo "== 실험 실행기는 아직 설치 전(실습리뷰 실행계획 5단계): 건너뜀"
 fi
 if [ -n "$AGENT_BACKUP" ]; then
   # 백업 LaunchAgent 는 08 E2 에서 처음 설치한다. 이미 설치된 경우에만 다시 설치

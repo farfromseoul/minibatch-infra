@@ -54,10 +54,15 @@ services:
       # ASMR 채널 (D38). 채널 ID 는 비밀 값이 아니다. 비어 있으면 올리지 않는다
       MINIBATCH_ASMR_CHANNEL_ID: "${MINIBATCH_ASMR_CHANNEL_ID:-}"
       MINIBATCH_ASMR_DAILY_UPLOAD_LIMIT: "${MINIBATCH_ASMR_DAILY_UPLOAD_LIMIT:-3}"
+      # 실습 리뷰 (D46): 실험 실행기(맥 위 LaunchAgent)와 실험 이미지. 실행기 토큰은 비밀 값 파일
+      MINIBATCH_LAB_RUNNER_URL: http://host.docker.internal:1236
+      MINIBATCH_LAB_IMAGE: ${MINIBATCH_IMAGE_PREFIX:-}minibatch-lab:${MINIBATCH_APP_IMAGE_TAG:-dev}
+      MINIBATCH_LAB_RUNNER_TOKEN_FILE: /run/secrets/lab_runner_token
     secrets:
       - job_api_token
       - youtube_client
       - telegram_bot_token
+      - lab_runner_token
     volumes:
       - ${MINIBATCH_DATA_DIR:?MINIBATCH_DATA_DIR 를 .env 에 지정하세요}:/data
       # 갱신 토큰은 job-api 가 다시 쓸 수 있어 secret(읽기 전용)이 아니라 폴더째 붙인다.
@@ -107,6 +112,20 @@ services:
     networks:
       - internal
 
+  # 실습 리뷰 실험 컨테이너의 유일한 바깥 길 (D46, H-D6). 바깥망(lab-out)과 실험망(lab)에 함께 붙는다.
+  # 허용 주소는 config/lab-egress/filter (지금 api.anthropic.com 만)
+  lab-egress:
+    profiles: ["app"]
+    image: alpine:3.22
+    restart: unless-stopped
+    command: ["sh", "-c", "apk add --no-cache tinyproxy=1.11.2-r0 >/dev/null && exec tinyproxy -d -c /etc/lab-egress/tinyproxy.conf"]
+    volumes:
+      - ./config/lab-egress:/etc/lab-egress:ro
+    networks:
+      lab:
+        ipv4_address: 172.31.250.2
+      lab-out: {}
+
   render-worker:
     profiles: ["app"]
     image: ${MINIBATCH_IMAGE_PREFIX:-}minibatch-render-worker:${MINIBATCH_APP_IMAGE_TAG:-dev}
@@ -126,6 +145,14 @@ networks:
   # 작업자 전용. 외부로 나가는 경로가 없다.
   internal:
     internal: true
+  # 실습 리뷰 실험 컨테이너 전용 (D46). 바깥 길이 없고 lab-egress 만 같이 붙는다. 이름 고정: 실행기가 docker run --network 로 쓴다
+  lab:
+    name: minibatch-lab
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.31.250.0/24
+  lab-out: {}
 
 volumes:
   n8n_data: {}
@@ -139,3 +166,5 @@ secrets:
     file: ${MINIBATCH_SECRETS_DIR:?MINIBATCH_SECRETS_DIR 를 .env 에 지정하세요}/youtube_client.json
   telegram_bot_token:
     file: ${MINIBATCH_SECRETS_DIR:?MINIBATCH_SECRETS_DIR 를 .env 에 지정하세요}/telegram_bot_token
+  lab_runner_token:
+    file: ${MINIBATCH_SECRETS_DIR:?MINIBATCH_SECRETS_DIR 를 .env 에 지정하세요}/lab_runner_token
