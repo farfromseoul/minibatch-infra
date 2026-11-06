@@ -4,7 +4,8 @@
 T=/Applications/Tailscale.app/Contents/MacOS/Tailscale
 open -ga Tailscale 2>/dev/null || true
 for i in $(seq 1 36); do   # 최대 3분: 앱·네트워크 확장이 뜰 때까지
-  st=$("$T" status --json 2>/dev/null | /usr/bin/python3 -c 'import json,sys; print(json.load(sys.stdin).get("BackendState",""))' 2>/dev/null)
+  # python3 없이(맥 스튜디오에는 개발 도구가 없어 python3 이 설치 창을 띄운다, 2026-11-06)
+  st=$("$T" status --json 2>/dev/null | grep -o '"BackendState": *"[A-Za-z]*"' | head -1 | sed 's/.*"\([A-Za-z]*\)"$/\1/')
   case "$st" in
     Running) echo "$(date '+%F %T') Tailscale Running"; exit 0 ;;
     Stopped) echo "$(date '+%F %T') Stopped → up"; "$T" up || true ;;
